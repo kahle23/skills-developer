@@ -146,7 +146,7 @@ PageHelper.startPage(pageNum, pageSize);
 只有确认没有可复用的代码后，才编写新代码。编写时：
 
 1. **遵循已有风格** — 参考 Step 2 中观察到的命名、注解、异常处理风格
-2. **遵循本技能规范** — 参考 `01-code-standards.md` 等文档
+2. **遵循本技能规范** — 参考 `03-code-standards.md` 等文档
 3. **使用项目已有工具类** — 优先用项目中已引入的工具库
 4. **保持接口一致性** — 返回类型、参数风格与已有代码统一
 
@@ -158,7 +158,7 @@ PageHelper.startPage(pageNum, pageSize);
 
 1. 在代码注释中说明用途
 2. 如果是通用工具方法，考虑是否应该放到公共模块
-3. 如果是新的编码模式，用户可以通过 `98-code-examples-template.md` 将其沉淀到本技能中
+3. 如果是新的编码模式，用户可以通过 `02-code-examples-template.md` 将其沉淀到本技能中
 
 ---
 

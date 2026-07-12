@@ -30,50 +30,7 @@ public class User {
 // 自动生成：getId/setName/getAge/setAge/toString/equals/hashCode/无参构造
 ```
 
-## 1.2 @Builder
-
-生成建造者模式代码。
-
-```java
-@Builder
-public class UserQuery {
-    private String name;
-    private Integer minAge;
-    private Integer maxAge;
-    private String deptName;
-}
-
-// 使用
-UserQuery query = UserQuery.builder()
-    .name("张三")
-    .minAge(18)
-    .maxAge(60)
-    .build();
-```
-
-## 1.3 @Data + @Builder 组合
-
-```java
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
-    private Long id;
-    private String name;
-    private Integer age;
-}
-
-// 既可以用 Builder
-User user = User.builder().id(1L).name("张三").age(25).build();
-
-// 也可以用 getter/setter
-User user = new User();
-user.setId(1L);
-user.setName("张三");
-```
-
-## 1.4 @NoArgsConstructor / @AllArgsConstructor
+## 1.2 @NoArgsConstructor / @AllArgsConstructor
 
 ```java
 @NoArgsConstructor   // 无参构造
@@ -298,11 +255,7 @@ public class User extends BaseEntity {
 // 如果 equals/hashCode 只看部分字段，可能会出问题
 // 建议：Map Key 用 @Value 或手动指定字段
 
-// 陷阱3：@Builder + JPA 实体
-// JPA 需要无参构造，@Builder 不会生成无参构造
-// 解决：@Data @Builder @NoArgsConstructor @AllArgsConstructor
-
-// 陷阱4：Lombok 生成的代码不被某些工具识别
+// 陷阱3：Lombok 生成的代码不被某些工具识别
 // IDE 需要安装 Lombok 插件
 // 代码覆盖率工具可能需要特殊配置
 ```
@@ -314,11 +267,10 @@ public class User extends BaseEntity {
 | 注解 | 作用 | 适用场景 |
 |------|------|---------|
 | `@Data` | getter/setter/toString/equals/hashCode | 实体类、DTO |
-| `@Builder` | 建造者模式 | 多字段对象构造 |
 | `@Value` | 不可变对象 | 值对象、配置类 |
 | `@Slf4j` | 日志声明 | 所有需要日志的类 |
 | `@NoArgsConstructor` | 无参构造 | JPA 实体、反序列化 |
-| `@AllArgsConstructor` | 全参构造 | 配合 @Builder |
+| `@AllArgsConstructor` | 全参构造 | 全字段初始化 |
 | `@RequiredArgsConstructor` | final/@NonNull 字段构造 | 依赖注入 |
 | `@ToString` | toString 方法 | 调试、日志 |
 | `@EqualsAndHashCode` | equals/hashCode | 比较、集合 |

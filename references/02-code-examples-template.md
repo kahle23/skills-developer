@@ -43,14 +43,14 @@
 
 | 示例特征 | 归入文档 |
 |---------|---------|
-| 命名、类结构、方法规范 | `01-code-standards.md` |
-| List/Map/Set/Stream 操作 | `02-collection-and-stream.md` |
-| 接口抽象、模式运用 | `03-design-patterns.md` |
-| 性能相关写法 | `04-performance.md` |
-| Lombok 注解用法 | `05-lombok.md` |
-| Hutool 工具类调用 | `06-hutool.md` |
-| Guava 工具类调用 | `07-guava.md` |
-| Apache Commons 调用 | `08-apache-commons.md` |
+| 命名、类结构、方法规范 | `03-code-standards.md` |
+| List/Map/Set/Stream 操作 | `04-collection-and-stream.md` |
+| 接口抽象、模式运用 | `05-design-patterns.md` |
+| 性能相关写法 | `06-performance.md` |
+| Lombok 注解用法 | `21-lombok.md` |
+| Hutool 工具类调用 | `22-hutool.md` |
+| Guava 工具类调用 | `23-guava.md` |
+| Apache Commons 调用 | `24-apache-commons.md` |
 | 无法归入以上类别 | `99-others.md` |
 | 跨多个类别 | 追加到最相关的文档，必要时在多个文档中引用 |
 
@@ -76,7 +76,6 @@
 
 ```java
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseAddParam {
@@ -87,14 +86,13 @@ public class WarehouseAddParam {
 }
 ```
 
-提炼后写入 `05-lombok.md`：
+提炼后写入 `21-lombok.md`：
 
 ```markdown
-### 1.5 @Data + @Builder + 构造方法组合（推荐写法）
+### 1.3 @Data + 构造方法组合（推荐写法）
 
 ```java
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseAddParam {
@@ -103,7 +101,7 @@ public class WarehouseAddParam {
 }
 ```
 
-四注解组合是实体类/参数类的标准写法：@Data 提供基础方法，@Builder 支持链式构造，@NoArgsConstructor/@AllArgsConstructor 兼容序列化框架和手动创建。
+三注解组合是实体类/参数类的标准写法：@Data 提供基础方法，@NoArgsConstructor/@AllArgsConstructor 兼容序列化框架和手动创建。
 ```
 
 ---
