@@ -274,7 +274,49 @@ Optional<User> first = users.stream().filter(user -> user.getAge() > 18).findFir
 Optional<User> any = users.stream().filter(user -> user.getAge() > 18).findAny();
 ```
 
-## 2.4 常见 Stream 模式
+## 2.4 Stream 格式规范
+
+**优先使用两行格式**：第一行是 `stream()`，第二行放所有链式操作（两行能放下就用两行）：
+
+```java
+// BAD — 所有操作挤在一行，难以阅读（如果很短，可以考虑一行）
+List<Long> ids = list.stream().map(Item::getId).distinct().collect(Collectors.toList());
+
+// BAD — 不必要的多行，过于分散
+List<Long> ids = list.stream()
+        .map(Item::getId)
+        .distinct()
+        .collect(Collectors.toList());
+
+// GOOD — 两行格式，简洁清晰
+List<Long> ids = list.stream()
+        .map(Item::getId).distinct().collect(Collectors.toList());
+```
+
+**ID 去重**：收集 ID 时务必使用 `.distinct()` 避免重复：
+
+```java
+// 提取去重的 ID 列表
+List<Long> billIds = billDetails.stream()
+        .map(BillDetail::getBillId).distinct().collect(Collectors.toList());
+```
+
+**只取去重 key 时，不需要 groupingBy**：
+
+```java
+// BAD — 只为了获取去重的 key，却做了分组
+Map<Long, List<Long>> idMap = items.stream()
+        .collect(Collectors.groupingBy(Item::getBillId, Collectors.mapping(Item::getId, Collectors.toList())));
+List<Long> billIds = new ArrayList<>(idMap.keySet());
+
+// GOOD — 直接用 distinct 获取去重 key
+List<Long> billIds = items.stream()
+        .map(Item::getBillId)
+        .distinct()
+        .collect(Collectors.toList());
+```
+
+## 2.5 常见 Stream 模式
 
 ```java
 // 模式1：提取 ID 列表
@@ -321,7 +363,7 @@ IntSummaryStatistics stats = users.stream()
 // stats.getCount(), stats.getSum(), stats.getAverage(), stats.getMax(), stats.getMin()
 ```
 
-## 2.5 并行 Stream
+## 2.6 并行 Stream
 
 ```java
 // 注意：并非所有场景都适合并行

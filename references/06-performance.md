@@ -313,11 +313,61 @@ kryo.writeObject(output, user);
 
 ---
 
-# 九、优化原则
+# 九、数据库批量操作优化
+
+## 9.1 循环内单条操作 → 批量操作
+
+```java
+// BAD — 循环内逐条删除，N 次数据库访问
+for (BillDetail detail : billDetails) {
+    billDetailService.deleteById(detail.getId());
+}
+
+// GOOD — 收集 ID 后批量删除，1 次数据库访问
+List<Long> ids = billDetails.stream()
+        .map(BillDetail::getId)
+        .distinct()
+        .collect(Collectors.toList());
+billDetailService.removeByIds(ids);
+```
+
+## 9.2 循环内逐条查询 → 批量查询
+
+```java
+// BAD — 循环内逐条查询，N 次数据库访问
+for (BillDetail detail : billDetails) {
+    List<BillDetail> others = billDetailService.list(
+        Wrappers.lambdaQuery(BillDetail.class)
+            .eq(BillDetail::getBillId, detail.getBillId())
+            .ne(BillDetail::getId, detail.getId())
+    );
+}
+
+// GOOD — 收集所有关联 ID 后批量查询，1 次数据库访问
+List<Long> billIds = billDetails.stream()
+        .map(BillDetail::getBillId)
+        .distinct()
+        .collect(Collectors.toList());
+
+List<BillDetail> remaining = billDetailService.list(
+    Wrappers.lambdaQuery(BillDetail.class)
+        .in(BillDetail::getBillId, billIds)
+);
+```
+
+## 9.3 批量操作注意事项
+
+1. **ID 去重**：收集 ID 时务必使用 `.distinct()` 避免重复
+2. **分批处理**：如果数据量很大（如 > 1000），需要分批执行避免 SQL 过长
+3. **事务一致性**：批量操作应在同一事务内，确保原子性
+
+---
+
+# 十、优化原则
 
 1. **先测量，再优化** — 不要凭直觉优化，用 Profiler 找到真正的瓶颈
 2. **二八法则** — 80% 的性能问题出在 20% 的代码上
 3. **可读性优先** — 微优化不如清晰的代码重要
 4. **选择合适的数据结构** — 这是最大的优化
 5. **减少对象创建** — 复用对象、使用基本类型、避免装箱
-6. **批处理** — 合并多次 I/O 为一次批量操作
+6. **批处理** — 合并多次数据库操作为一次批量操作
