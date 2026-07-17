@@ -62,6 +62,12 @@ git log --oneline -3
 2. **不要提交**：.env 文件、API 密钥、数据库密码、证书文件
 3. **冲突处理**：不要强行覆盖，先 `git pull --rebase` 再处理
 4. **确认再推**：commit 后不自动 push，等用户确认
+5. **禁止擅自署名**：commit message 只写变更描述，严禁附加任何 AI/工具身份信息，包括：
+   - `Co-authored-by: xxx` 之类的协作署名
+   - `🤖 Generated with ...`、`Created by AI` 等生成标记
+   - 尾部签名、广告、emoji 宣传语
+   - 也不得通过 `--author` / `user.name` / `user.email` 篡改提交者身份
+   如用户明确要求添加署名，才可按用户指定内容添加
 
 ## 快速参考
 
