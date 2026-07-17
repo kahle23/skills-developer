@@ -1,70 +1,78 @@
-# Java Coding Guide — AI 编码指南技能
+# Skills Developer — 开发者技能集
 
-一个指导 AI 编写高质量、风格统一的 Java 代码的技能。适用于 **Java 1.6 及以上版本**的项目，不绑定特定框架或技术栈。
+一套面向 AI 编程助手的**开发者技能合集**。把表设计、功能设计、代码规范、工具库用法等工程经验沉淀为结构化文档，让 AI 在协助开发时输出风格统一、质量稳定、贴合团队约定的代码与方案。
 
-<br />
+> 每个技能都是一个独立的目录，包含 `SKILL.md`（技能元数据与加载规则）和 `references/`（分主题的参考文档）。AI 按需查阅，不会一次性读取全部内容。
 
-<br />
+---
 
-## 这个技能能做什么？
+## 为什么需要这些技能
 
-安装此技能后，AI 在编写 Java 代码时会：
+AI 写代码常见的问题：命名风格漂移、重复造轮子、忽略已有工具方法、异常处理与日志风格不一致、API 设计随意。这套技能通过把团队约定固化成文档，让 AI：
 
-1. **先搜索已有代码** — 不会盲目新建方法，而是先在项目中查找是否已有类似功能可复用
+- **先复用再新建** — 编码前先搜索项目已有代码，避免重复造轮子
+- **风格统一** — 命名、结构、注释、异常、日志遵循一致约定
+- **善用工具库** — 优先使用 Hutool、Guava、Apache Commons 等成熟组件
+- **规范输出** — API 遵循 RESTful、统一返回值、分页与错误码体系
+- **设计先行** — 表结构、功能方案在动手前就有章可循
 
-2. **遵循统一的编码规范** — 命名、结构、注释、异常处理、日志风格保持一致
+---
 
-3. **善用工具库** — 优先使用 Hutool、Guava、Apache Commons 等成熟工具类，不重复造轮子
+## 技能清单
 
-4. **应用设计模式** — 在合适场景使用建造者、策略、模板方法、观察者等模式
+| 技能 | 说明 | 状态 |
+|------|------|------|
+| [java-coding-guide](./java-coding-guide) | Java 编码规范与工具库指南（Java 1.6+，不绑定框架） | ✅ 已完成 |
+| db-design-guide | 数据库表设计规范（命名、字段、索引、主键策略、分库分表） | 🚧 规划中 |
+| feature-design-guide | 功能设计指南（需求拆解、模块划分、流程图、接口契约） | 🚧 规划中 |
 
-5. **注意性能** — 避免常见性能陷阱（自动装箱、循环内创建对象、无界队列等）
+> 技能之间相互独立，可按需选用；也鼓励把它们组合使用，覆盖从设计到编码的完整链路。
 
-6. **遵循 API 设计规范** — RESTful 风格、统一返回值、分页约定、错误码体系
+---
 
-<br />
-
-
-### 文档结构一览
+## 目录结构
 
 ```
-references/
+skills-developer/
 │
-├── 01-ai-workflow.md              # AI 编码工作流（先搜再读最后写）
-├── 02-code-examples-template.md   # 代码示例学习模板（收到示例时提炼规则）
+├── README.md                       # 本文件
 │
-├── 03-code-standards.md           # 代码规范（命名/结构/注释/异常/日志/空值）
-├── 04-collection-and-stream.md    # 集合与 Stream（List/Map/Set/Stream/泛型）
-├── 05-design-patterns.md          # 设计模式（建造者/策略/模板/观察者/责任链）
-├── 06-performance.md              # 性能优化（字符串/集合/装箱/IO/并发）
-├── 07-concurrency.md              # 并发编程（线程池/锁/CompletableFuture）
-├── 08-api-design.md               # API 设计规范（RESTful/返回值/分页/错误码）
-│
-├── 21-lombok.md                   # Lombok 使用指南
-├── 22-hutool.md                   # Hutool 工具库
-├── 23-baibao.md                   # Baibao 工具库
-├── 24-guava.md                    # Guava  工具库
-├── 25-apache-commons.md           # Apache Commons
-│
-└── 99-others.md                   # 其他（兜底收录）
+└── java-coding-guide/              # Java 编码指南技能
+    ├── README.md                   # 技能说明与使用示例
+    ├── SKILL.md                    # 技能元数据（名称/描述/加载规则/文档索引）
+    └── references/                 # 分主题参考文档
+        ├── 01-ai-workflow.md           # AI 编码工作流（先搜再读最后写）
+        ├── 02-code-examples-template.md# 代码示例学习模板
+        ├── 03-code-standards.md        # 代码规范
+        ├── 04-collection-and-stream.md # 集合与 Stream
+        ├── 05-design-patterns.md       # 设计模式
+        ├── 06-performance.md           # 性能优化
+        ├── 07-concurrency.md           # 并发编程
+        ├── 08-api-design.md            # API 设计规范
+        ├── 21-lombok.md                # Lombok
+        ├── 22-hutool.md                # Hutool
+        ├── 23-baibao.md                # Baibao
+        ├── 24-guava.md                 # Guava
+        └── 25-apache-commons.md        # Apache Commons
 ```
 
-编号区间含义：
+文档编号区间约定（各技能通用）：
+
 - **01~02**：工作流与模板（AI 编码前必读）
-- **03~08**：核心编码规范（通用 Java 知识）
+- **03~08**：核心规范（通用知识）
 - **21~40**：第三方框架/工具库
-- **41~60**：公司内部包/框架（按需创建，无需预先建文件）
+- **41~60**：公司内部包/框架（按需创建）
 - **99**：其他（兜底收录）
 
-<br />
-
-<br />
+---
 
 ## 如何使用
 
-将 `java-coding-guide/` 目录放到项目中即可。AI 会自动识别并根据场景查阅对应文档。
+### 1. 安装技能
 
-**典型使用场景：**
+将技能目录（如 `java-coding-guide/`）放入你的项目中，AI 会自动识别 `SKILL.md` 并按场景查阅对应文档。
+
+### 2. 典型场景
 
 | 你对 AI 说的话 | AI 会参考的文档 |
 |---------------|----------------|
@@ -74,155 +82,53 @@ references/
 | "用 Hutool 处理日期" | 22 |
 | "帮我写并发任务处理" | 07 → 06 |
 
-<br />
+### 3. 定制技能
 
-<br />
+所有技能文档都是纯 Markdown，直接编辑即可调整风格偏好：
 
-## 如何定制这个技能
+- **改命名风格** → 编辑 `03-code-standards.md`
+- **停用某个工具库** → 删除或注释对应文档
+- **加入公司内部包** → 按 `41-xxx.md` 命名新建文档
+- **喂代码示例自学** → 发送代码片段，AI 按 `02` 模板提炼规则
 
-### 1. 调整编码风格偏好
+详细定制方式见各技能目录下的 `README.md`。
 
-如果你对某些规范有不同偏好，直接编辑对应文档即可。比如：
+---
 
-- **不喜欢某种命名风格** → 编辑 `03-code-standards.md`，修改命名示例
-- **不想使用某个工具库** → 删除或修改对应的 `22-hutool.md` 等文档
-- **有特定的注释要求** → 编辑 `03-code-standards.md` 中的注释章节
+## 新增技能
 
-<br />
+每个技能是一个独立目录，建议结构：
 
-### 2. 添加公司内部包文档
+```
+{skill-name}/
+├── README.md        # 技能说明：能做什么、如何使用、如何定制
+├── SKILL.md         # 元数据：name、description、加载规则、文档索引
+└── references/      # 分主题参考文档（按编号区间组织）
+```
 
-> 无需预先创建 `41-internal-packages.md` 文件。AI 在遇到公司自研包时，按以下规则即时生成文档内容。
-
-**步骤**：
-
-1. 确定包编号（从 41 开始递增）
-2. 按命名规范创建文档，如 `references/41-demo.md`
-3. 按下方模板填写包的 Maven 依赖、核心功能、常用 API、使用示例
-
-**命名规范**：`{编号}-{包简称}.md`，包简称用小写英文，多单词用连字符分隔，如 `41-demo.md`、`42-demo-framework.md`。
-
-**文档模板**：
+`SKILL.md` 头部需包含 frontmatter：
 
 ```markdown
-# {包名称}
+---
+name: {skill-name}
+description: 技能描述与触发词，用于 AI 判断何时加载
+---
+```
 
-简要说明包的用途和适用场景。
-
-Maven 依赖：
-\```xml
-<dependency>
-    <groupId>xxx</groupId>
-    <artifactId>xxx</artifactId>
-    <version>x.x.x</version>
-</dependency>
-\```
+命名建议：技能目录与 `name` 一致，用小写英文加连字符，如 `db-design-guide`、`feature-design-guide`。
 
 ---
 
-# 一、核心功能
+## 路线图
 
-## 1.1 功能名称
-
-\```java
-// 使用示例
-\```
-
-说明。
+- [x] **java-coding-guide** — Java 编码规范与工具库
+- [ ] **db-design-guide** — 数据库表设计规范
+- [ ] **feature-design-guide** — 功能设计指南
+- [ ] **code-review-guide** — 代码审查清单与规范
+- [ ] **git-workflow-guide** — 分支策略与提交规范
 
 ---
 
-# 二、常用 API
+## 许可
 
-| 类/方法 | 说明 | 示例 |
-|---------|------|------|
-| `XxxUtil.method()` | 用途 | 参考代码 |
-
----
-
-# 三、使用注意事项
-
-1. 注意事项1
-2. 注意事项2
-```
-
-<br />
-
-### 3. 添加新的第三方工具库
-
-如果项目引入了新的工具库（如 MapStruct、EasyExcel、Sa-Token 等）：
-
-```
-步骤：
-1. 在 references/ 目录下创建新文档，编号从 25 开始递增
-   如：references/25-mapstruct.md、references/26-easyexcel.md
-2. 按现有工具库文档的格式编写（Maven依赖 → 核心功能 → 常用API → 示例代码）
-3. 更新 SKILL.md 中的导航表和决策树
-```
-
-<br />
-
-### 4. 通过代码示例自动学习
-
-你也可以直接给 AI 发送代码示例，它会自动提炼规范并写入技能：
-
-```
-步骤：
-1. 把你认为风格好的代码片段发给 AI
-2. AI 会按 02-code-examples-template.md 的流程分析代码
-3. 提取出命名、结构、工具库使用等规范
-4. 自动追加到对应的文档中
-```
-
-支持批量发送多个代码片段，AI 会提取共性规范。
-
-<br />
-
-### 5. 添加核心编码规范文档
-
-如果需要补充新的编码规范（如 SQL 编写规范、单元测试规范等）：
-
-```
-步骤：
-1. 在 references/ 目录下创建新文档，编号在 03~08 区间内递增
-   如：references/09-sql-standards.md、references/10-unit-testing.md
-2. 按现有规范文档的格式编写（标题一分类 → 标题二小分类 → 代码示例）
-3. 更新 SKILL.md 中的导航表和决策树
-```
-
-<br />
-
-### 6. 删除不需要的文档
-
-如果某些文档对你的项目不适用，直接删除即可：
-
-```
-- 不用 Guava？删除 23-guava.md
-- 不用 Apache Commons？删除 24-apache-commons.md
-- 不需要 API 设计规范？删除 08-api-design.md
-
-删除后记得从 SKILL.md 的导航表和决策树中移除对应条目。
-```
-
-<br />
-
-<br />
-
-## 常见问题
-
-**Q: 如何让 AI 优先使用项目中已有的工具方法？**
-
-编辑 `01-ai-workflow.md` 中的搜索范围，将你的公共模块路径加入优先搜索列表。
-
-**Q: 如何让 AI 不使用某些我不喜欢的写法？**
-
-直接编辑对应文档，将不推荐的写法标注为 `// BAD`，并说明原因。
-
-**Q: 技能文档太多，AI 会不会每次都读取所有文档？**
-
-不会。AI 会根据 SKILL.md 中的决策树按需查阅，不会每次都读取全部文档。
-
-<br />
-
-<br />
-
+内部使用，按需自定义。
