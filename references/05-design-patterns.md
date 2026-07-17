@@ -4,458 +4,210 @@
 
 ---
 
-# 一、建造者模式（Builder）
+# 一、建造者（Builder）
 
-适用场景：对象字段多、构造参数复杂、需要灵活组合。
+> 对象字段多、构造参数复杂。推荐 Lombok `@Builder`，手写参考：
 
 ```java
 public class UserQuery {
-    private String name;
-    private Integer minAge;
-    private Integer maxAge;
-    private String deptName;
-    private List<Long> idList;
-    private Integer pageNum = 1;
+    private String name;    private Integer minAge;
+    private Integer maxAge; private Integer pageNum = 1;
     private Integer pageSize = 20;
 
-    // 私有构造
     private UserQuery() {}
-
-    public static Builder builder() {
-        return new Builder();
-    }
+    public static Builder builder() { return new Builder(); }
 
     public static class Builder {
         private final UserQuery q = new UserQuery();
-
-        public Builder name(String name)       { q.name = name; return this; }
-        public Builder minAge(Integer minAge)   { q.minAge = minAge; return this; }
-        public Builder maxAge(Integer maxAge)   { q.maxAge = maxAge; return this; }
-        public Builder deptName(String deptName) { q.deptName = deptName; return this; }
-        public Builder idList(List<Long> idList) { q.idList = idList; return this; }
-        public Builder pageNum(Integer pageNum) { q.pageNum = pageNum; return this; }
-        public Builder pageSize(Integer pageSize) { q.pageSize = pageSize; return this; }
-
+        public Builder name(String v)      { q.name = v;     return this; }
+        public Builder minAge(Integer v)   { q.minAge = v;   return this; }
+        public Builder maxAge(Integer v)   { q.maxAge = v;   return this; }
+        public Builder pageNum(Integer v)  { q.pageNum = v;  return this; }
+        public Builder pageSize(Integer v) { q.pageSize = v; return this; }
         public UserQuery build() { return q; }
     }
 }
-
-// 使用
-UserQuery query = UserQuery.builder()
-    .name("张三")
-    .minAge(18)
-    .maxAge(60)
-    .pageNum(1)
-    .pageSize(20)
-    .build();
+// UserQuery.builder().name("张三").minAge(18).pageSize(20).build();
 ```
 
 ---
 
-# 二、策略模式（Strategy）
+# 二、策略（Strategy）
 
-适用场景：同一操作有多种实现，需要根据条件切换。
+> 同一操作多种实现，按类型切换。
 
 ```java
-// 1. 定义策略接口
+// 接口
 public interface ExportStrategy {
     String getFileExtension();
     byte[] export(List<?> data);
 }
+// Excel/Csv/PdfExportStrategy 各自实现 export()，注册到工厂
 
-// 2. 具体策略
-public class ExcelExportStrategy implements ExportStrategy {
-    @Override
-    public String getFileExtension() { return ".xlsx"; }
-
-    @Override
-    public byte[] export(List<?> data) {
-        // EasyExcel 导出逻辑
-        return excelBytes;
-    }
-}
-
-public class CsvExportStrategy implements ExportStrategy {
-    @Override
-    public String getFileExtension() { return ".csv"; }
-
-    @Override
-    public byte[] export(List<?> data) {
-        // CSV 导出逻辑
-        return csvBytes;
-    }
-}
-
-public class PdfExportStrategy implements ExportStrategy {
-    @Override
-    public String getFileExtension() { return ".pdf"; }
-
-    @Override
-    public byte[] export(List<?> data) {
-        // PDF 导出逻辑
-        return pdfBytes;
-    }
-}
-
-// 3. 策略工厂
+// 工厂
 public class ExportStrategyFactory {
-    private static final Map<String, ExportStrategy> STRATEGY_MAP = new HashMap<>();
+    private static final Map<String, ExportStrategy> MAP = new HashMap<>();
+    static { MAP.put("excel", new ExcelExportStrategy()); /* ... */ }
 
-    static {
-        STRATEGY_MAP.put("excel", new ExcelExportStrategy());
-        STRATEGY_MAP.put("csv", new CsvExportStrategy());
-        STRATEGY_MAP.put("pdf", new PdfExportStrategy());
-    }
-
-    public static ExportStrategy getStrategy(String type) {
-        ExportStrategy strategy = STRATEGY_MAP.get(type.toLowerCase());
-        if (strategy == null) {
-            throw new IllegalArgumentException("不支持的导出类型: " + type);
-        }
-        return strategy;
+    public static ExportStrategy get(String type) {
+        ExportStrategy s = MAP.get(type.toLowerCase());
+        if (s == null) throw new IllegalArgumentException("不支持: " + type);
+        return s;
     }
 }
-
-// 4. 使用
-public class ExportService {
-    public byte[] export(String type, List<?> data) {
-        ExportStrategy strategy = ExportStrategyFactory.getStrategy(type);
-        return strategy.export(data);
-    }
-}
+// 使用：ExportStrategyFactory.get(type).export(data);
 ```
 
 ---
 
-# 三、模板方法模式（Template Method）
+# 三、模板方法（Template Method）
 
-适用场景：流程固定，但某些步骤由子类自定义。
+> 流程固定，某些步骤子类自定义。
 
 ```java
-// 1. 抽象模板类
 public abstract class DataImportTemplate<T> {
-
-    // 模板方法 — 定义流程骨架
     public final ImportResult execute(InputStream input) {
-        // 1. 读取数据
-        List<String> rawData = readData(input);
-
-        // 2. 解析数据
-        List<T> dataList = parseData(rawData);
-
-        // 3. 校验数据
-        validate(dataList);
-
-        // 4. 保存数据（子类实现）
-        int saved = saveData(dataList);
-
-        // 5. 返回结果
-        ImportResult result = new ImportResult();
-        result.setTotal(dataList.size());
-        result.setSuccess(saved);
-        return result;
+        List<T> list = parseData(readData(input));
+        validate(list);
+        return buildResult(list.size(), saveData(list));
     }
 
-    // 抽象方法 — 子类必须实现
-    protected abstract List<T> parseData(List<String> rawData);
-    protected abstract int saveData(List<T> dataList);
-
-    // 钩子方法 — 子类可选重写
-    protected void validate(List<T> dataList) {
-        // 默认不做校验
-    }
-
-    // 通用方法 — 子类直接使用
-    protected List<String> readData(InputStream input) {
-        // 通用的 Excel/CSV 读取逻辑
-    }
+    protected abstract List<T> parseData(List<String> raw);
+    protected abstract int saveData(List<T> list);
+    protected void validate(List<T> list) { }                // 钩子——可选重写
+    protected List<String> readData(InputStream in) { /* */ } // 通用方法
 }
 
-// 2. 具体实现
-public class UserImportTemplate extends DataImportTemplate<User> {
-
-    @Override
-    protected List<User> parseData(List<String> rawData) {
-        // 将原始数据解析为 User 对象
-    }
-
-    @Override
-    protected int saveData(List<User> dataList) {
-        return userMapper.batchInsert(dataList);
-    }
-
-    @Override
-    protected void validate(List<User> dataList) {
-        // 校验用户数据：名称不为空、邮箱格式正确等
-    }
+public class UserImport extends DataImportTemplate<User> {
+    @Override protected List<User> parseData(List<String> raw) { /* 解析 */ }
+    @Override protected int saveData(List<User> list) { return mapper.batchInsert(list); }
+    @Override protected void validate(List<User> list) { /* 名称非空、邮箱格式 */ }
 }
 ```
 
 ---
 
-# 四、观察者模式（Observer / Event）
+# 四、观察者（Event）
 
-适用场景：一个操作完成后需要触发多个后续动作，且这些动作可能变化。
+> 操作完成后触发多个后续动作。Spring 事件方案：
 
 ```java
-// 1. 事件定义
+// 事件
 public class OrderCreatedEvent {
-    private final Long orderId;
-    private final Long userId;
-
-    public OrderCreatedEvent(Long orderId, Long userId) {
-        this.orderId = orderId;
-        this.userId = userId;
-    }
+    private final Long orderId, userId;
+    public OrderCreatedEvent(Long oid, Long uid) { orderId = oid; userId = uid; }
     // getter...
 }
 
-// 2. 事件监听器（Spring 风格）
+// 监听器（多个监听器处理不同逻辑：通知、扣库存、日志）
 @Component
 public class OrderEventListener {
-
     @EventListener
-    public void onOrderCreated(OrderCreatedEvent event) {
-        // 发送通知
-        sendNotification(event.getUserId());
-    }
+    public void handle(OrderCreatedEvent e) { sendNotification(e.getUserId()); }
 }
 
-@Component
-public class InventoryEventListener {
-
-    @EventListener
-    public void onOrderCreated(OrderCreatedEvent event) {
-        // 扣减库存
-        reduceStock(event.getOrderId());
-    }
-}
-
-// 3. 发布事件
+// 发布
 @Service
 public class OrderService {
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    public Long createOrder(Order order) {
-        orderMapper.insert(order);
-        // 发布事件，所有监听器自动执行
-        eventPublisher.publishEvent(new OrderCreatedEvent(order.getId(), order.getUserId()));
-        return order.getId();
+    @Autowired private ApplicationEventPublisher publisher;
+    public Long create(Order o) {
+        mapper.insert(o);
+        publisher.publishEvent(new OrderCreatedEvent(o.getId(), o.getUserId()));
+        return o.getId();
     }
 }
 ```
 
 ---
 
-# 五、责任链模式（Chain of Responsibility）
+# 五、责任链（Chain of Responsibility）
 
-适用场景：请求需要经过多个处理者，每个处理者决定是否处理或传递给下一个。
+> 请求经多个处理者，每个决定处理或传递。
 
 ```java
-// 1. 处理者接口
 public abstract class Handler {
     private Handler next;
+    public Handler setNext(Handler h) { this.next = h; return h; }
 
-    public Handler setNext(Handler next) {
-        this.next = next;
-        return next;
+    public void handle(Request req) {
+        if (canHandle(req)) doHandle(req);
+        else if (next != null) next.handle(req);
+        else throw new BusinessException("无处理器");
     }
-
-    public void handle(Request request) {
-        if (canHandle(request)) {
-            doHandle(request);
-        } else if (next != null) {
-            next.handle(request);
-        } else {
-            throw new BusinessException("无处理器可处理该请求");
-        }
-    }
-
-    protected abstract boolean canHandle(Request request);
-    protected abstract void doHandle(Request request);
+    protected abstract boolean canHandle(Request req);
+    protected abstract void doHandle(Request req);
 }
-
-// 2. 具体处理者
-public class AuthHandler extends Handler {
-    @Override
-    protected boolean canHandle(Request request) { return true; }
-
-    @Override
-    protected void doHandle(Request request) {
-        // 认证逻辑
-    }
-}
-
-public class RateLimitHandler extends Handler {
-    @Override
-    protected boolean canHandle(Request request) { return true; }
-
-    @Override
-    protected void doHandle(Request request) {
-        // 限流逻辑
-    }
-}
-
-public class BusinessHandler extends Handler {
-    @Override
-    protected boolean canHandle(Request request) { return true; }
-
-    @Override
-    protected void doHandle(Request request) {
-        // 业务逻辑
-    }
-}
-
-// 3. 构建链条
-Handler chain = new AuthHandler();
-chain.setNext(new RateLimitHandler())
-     .setNext(new BusinessHandler());
-
-// 4. 执行
-chain.handle(request);
+// AuthHandler/RateLimitHandler/BusinessHandler 各自实现 canHandle+doHandle
+// new AuthHandler().setNext(new RateLimitHandler()).setNext(new BusinessHandler());
 ```
 
 ---
 
-# 六、工厂模式（Factory）
+# 六、工厂（Factory）
+
+> 推荐 Spring 自动注入，避免 switch-case（违反开闭原则）。
 
 ```java
-// 简单工厂
-public class PaymentFactory {
-    public static PaymentService create(String type) {
-        switch (type.toLowerCase()) {
-            case "alipay":  return new AlipayService();
-            case "wechat":  return new WechatPayService();
-            case "bank":    return new BankPayService();
-            default: throw new IllegalArgumentException("不支持的支付方式: " + type);
-        }
-    }
-}
-
-// 使用 Spring 的工厂模式（推荐）
 @Component
 public class PaymentFactory {
-    @Autowired
-    private List<PaymentService> paymentServices;  // Spring 自动注入所有实现
-
-    private final Map<String, PaymentService> serviceMap = new HashMap<>();
+    @Autowired private List<PaymentService> services;  // 自动注入所有实现
+    private final Map<String, PaymentService> map = new HashMap<>();
 
     @PostConstruct
-    public void init() {
-        for (PaymentService service : paymentServices) {
-            serviceMap.put(service.getType(), service);
-        }
-    }
+    void init() { services.forEach(s -> map.put(s.getType(), s)); }
 
-    public PaymentService getService(String type) {
-        PaymentService service = serviceMap.get(type);
-        if (service == null) {
-            throw new IllegalArgumentException("不支持的支付方式: " + type);
-        }
-        return service;
+    public PaymentService get(String type) {
+        PaymentService s = map.get(type);
+        if (s == null) throw new IllegalArgumentException("不支持: " + type);
+        return s;
     }
 }
 ```
 
 ---
 
-# 七、单例模式（Singleton）
+# 七、单例（Singleton）
 
 ```java
-// 方式1：枚举（最推荐）
-public enum Singleton {
-    INSTANCE;
-
-    public void doSomething() { }
-}
-
-// 方式2：静态内部类
-public class Singleton {
-    private Singleton() {}
-
-    private static class Holder {
-        private static final Singleton INSTANCE = new Singleton();
-    }
-
-    public static Singleton getInstance() {
-        return Holder.INSTANCE;
-    }
-}
-
-// 方式3：双重检查锁（DCL）
-public class Singleton {
-    private static volatile Singleton instance;
-
-    private Singleton() {}
-
-    public static Singleton getInstance() {
-        if (instance == null) {
-            synchronized (Singleton.class) {
-                if (instance == null) {
-                    instance = new Singleton();
-                }
-            }
-        }
-        return instance;
-    }
-}
+// 推荐：枚举（最简单、线程安全、防反射）
+public enum Singleton { INSTANCE; public void doSomething() { } }
+// 次选：静态内部类 / DCL
 ```
 
 ---
 
-# 八、适配器模式（Adapter）
+# 八、适配器（Adapter）
 
-适用场景：将不兼容的接口转换为期望的接口。
+> 将不兼容的接口包装为兼容接口。
 
 ```java
-// 旧接口
-public interface OldUserService {
-    UserInfo getUserById(String id);
-    List<UserInfo> queryUsers(Map<String, Object> params);
-}
+// 旧接口: getUserById(String) / queryUsers(Map)
+// 新接口: getUserById(Long) / queryUsers(UserQuery)
 
-// 新接口
-public interface UserService {
-    UserDTO getUserById(Long id);
-    PageResult<UserDTO> queryUsers(UserQuery query);
-}
-
-// 适配器
 public class UserServiceAdapter implements UserService {
-    @Autowired
-    private OldUserService oldUserService;
+    @Autowired private OldUserService old;
 
-    @Override
-    public UserDTO getUserById(Long id) {
-        UserInfo info = oldUserService.getUserById(String.valueOf(id));
-        return convertToDTO(info);
+    @Override public UserDTO getUserById(Long id) {
+        return convert(old.getUserById(String.valueOf(id)));
     }
-
-    @Override
-    public PageResult<UserDTO> queryUsers(UserQuery query) {
-        Map<String, Object> params = convertToParams(query);
-        List<UserInfo> list = oldUserService.queryUsers(params);
-        return PageResult.of(list.stream().map(this::convertToDTO).collect(Collectors.toList()));
+    @Override public PageResult<UserDTO> queryUsers(UserQuery q) {
+        return PageResult.of(old.queryUsers(convertToParams(q))
+            .stream().map(this::convert).collect(Collectors.toList()));
     }
-
-    private UserDTO convertToDTO(UserInfo info) { }
-    private Map<String, Object> convertToParams(UserQuery query) { }
 }
 ```
 
 ---
 
-# 九、模式选择速查
+# 九、速查表
 
 | 问题 | 模式 | 关键特征 |
 |------|------|---------|
-| 对象构造参数太多 | 建造者 | `Builder` 内部类 |
+| 对象构造参数太多 | 建造者 | Builder / Lombok `@Builder` |
 | 同一操作多种实现 | 策略 | 接口 + Map 分发 |
-| 流程固定，步骤可变 | 模板方法 | 抽象类 + 钩子方法 |
-| 操作完成后触发多个后续动作 | 观察者/事件 | `Event` + `Listener` |
-| 请求需要经过多层处理 | 责任链 | 链式传递 |
-| 根据条件创建不同对象 | 工厂 | `create(type)` |
-| 全局唯一实例 | 单例 | 枚举 / 静态内部类 |
-| 接口不兼容 | 适配器 | 包装旧接口为新接口 |
+| 流程固定步骤可变 | 模板方法 | 抽象类 + 钩子 |
+| 操作后触发多动作 | 观察者 | Spring `@EventListener` |
+| 请求需多层处理 | 责任链 | 链式传递 |
+| 按条件创建对象 | 工厂 | Spring 注入所有实现 |
+| 全局唯一实例 | 单例 | 枚举最优先 |
+| 接口不兼容 | 适配器 | 包装旧接口 |
